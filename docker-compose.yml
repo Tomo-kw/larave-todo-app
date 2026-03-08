@@ -1,0 +1,50 @@
+# 学習用: Laravelを動かす最小構成
+services:
+  # Webサーバ: ブラウザからのHTTPを受ける
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      # ホスト8080 -> コンテナ80
+      - "8080:80"
+    volumes:
+      # アプリコードを共有
+      - ./:/var/www/html
+      # Nginx設定を読み取り専用で反映
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      # PHP実行先が必要
+      - php
+
+  # PHP実行環境 (php-fpm)
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    # コンテナ内の作業ディレクトリ
+    working_dir: /var/www/html
+    volumes:
+      # アプリコードを共有
+      - ./:/var/www/html
+    depends_on:
+      # DB起動後にPHPを起動
+      - mysql
+
+  # DBサーバ
+  mysql:
+    image: mysql:8.4
+    ports:
+      # ホストからDB接続できるよう公開
+      - "3306:3306"
+    environment:
+      # 初期DB/ユーザー設定
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: sail
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      # DBデータを永続化
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  # named volume 定義
+  mysql_data:
