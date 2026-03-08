@@ -8,8 +8,17 @@
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('todos.index') }}">Laravel TODO</a>
+        <div class="container d-flex justify-content-between">
+            <a class="navbar-brand" href="{{ auth()->check() ? route('todos.index') : route('login') }}">Laravel TODO</a>
+            <div class="d-flex align-items-center gap-2 text-white">
+                @auth
+                    <span class="small">{{ auth()->user()->name }}</span>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button class="btn btn-sm btn-outline-light" type="submit">ログアウト</button>
+                    </form>
+                @endauth
+            </div>
         </div>
     </nav>
 

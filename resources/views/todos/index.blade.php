@@ -17,7 +17,7 @@
                 <tr>
                     <th>ID</th>
                     <th>タイトル</th>
-                    <th>ユーザー</th>
+                    <th>作成者</th>
                     <th>状態</th>
                     <th>優先度</th>
                     <th>期限</th>
@@ -29,7 +29,13 @@
                     <tr>
                         <td>{{ $todo->id }}</td>
                         <td>{{ $todo->title }}</td>
-                        <td>{{ $todo->user->name ?? '-' }}</td>
+                        <td>
+                            <div>{{ $todo->user->name ?? '-' }}</div>
+                            <div class="text-muted small">{{ $todo->user->email ?? '-' }}</div>
+                            @if(auth()->id() === $todo->user_id)
+                                <span class="badge text-bg-primary">自分</span>
+                            @endif
+                        </td>
                         <td>{{ $todo->status }}</td>
                         <td>{{ $todo->priority }}</td>
                         <td>{{ $todo->due_date?->format('Y-m-d') ?? '-' }}</td>
