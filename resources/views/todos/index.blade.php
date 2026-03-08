@@ -28,7 +28,12 @@
                 @foreach($todos as $todo)
                     <tr>
                         <td>{{ $todo->id }}</td>
-                        <td>{{ $todo->title }}</td>
+                        <td>
+                            {{ $todo->title }}
+                            @if($todo->is_overdue)
+                                <span class="badge text-bg-danger">期限切れ</span>
+                            @endif
+                        </td>
                         <td>
                             <div>{{ $todo->user->name ?? '-' }}</div>
                             <div class="text-muted small">{{ $todo->user->email ?? '-' }}</div>

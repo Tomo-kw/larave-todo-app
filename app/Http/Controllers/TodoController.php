@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Todo;
 use App\Models\User;
+use App\Services\TodoDeadlineService;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
+    public function __construct(
+        private readonly TodoDeadlineService $todoDeadlineService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -18,6 +23,10 @@ class TodoController extends Controller
             ->orderBy('due_date')
             ->orderBy('priority')
             ->get();
+
+        $todos->each(function (Todo $todo): void {
+            $todo->setAttribute('is_overdue', $this->todoDeadlineService->isOverdue($todo));
+        });
 
         return view('todos.index', compact('todos'));
     }
