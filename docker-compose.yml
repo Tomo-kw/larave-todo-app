@@ -45,6 +45,15 @@ services:
       # DBデータを永続化
       - mysql_data:/var/lib/mysql
 
+  # Mailサーバ(開発用受信ボックス)
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      # SMTP受信用ポート
+      - "1025:1025"
+      # Web UI表示ポート
+      - "8025:8025"
+
 volumes:
   # named volume 定義
   mysql_data:

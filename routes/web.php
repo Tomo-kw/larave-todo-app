@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TodoController;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // トップページ: ログイン状態に応じて遷移先を分岐
@@ -24,6 +25,18 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 
 // Todo機能はログイン必須
 Route::middleware('auth')->group(function () {
+    // Mailpit送信確認用（学習用）
+    Route::get('/mail-test', function () {
+        $user = auth()->user();
+
+        Mail::raw('Mailpit送信テストです。', function ($message) use ($user): void {
+            $message->to($user->email, $user->name)
+                ->subject('Mailpitテスト');
+        });
+
+        return 'メールを送信しました。Mailpit UI (http://localhost:8025) を確認してください。';
+    })->name('mail.test');
+
     Route::resource('todos', TodoController::class)
         ->except(['edit', 'update', 'destroy']);
 
