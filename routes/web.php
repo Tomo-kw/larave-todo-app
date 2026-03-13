@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TodoController;
+use App\Models\Todo;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +38,24 @@ Route::middleware('auth')->group(function () {
 
         return 'メールを送信しました。Mailpit UI (http://localhost:8025) を確認してください。';
     })->name('mail.test');
+
+    // Redisキャッシュ確認用（学習用）
+    Route::get('/cache-test', function () {
+        $cacheKey = 'todos.count';
+        $cacheTtlSeconds = 60;
+        $wasCacheHit = Cache::has($cacheKey);
+
+        $count = Cache::remember($cacheKey, $cacheTtlSeconds, function (): int {
+            return Todo::count();
+        });
+
+        return response()->json([
+            'count' => $count,
+            'cache_status' => $wasCacheHit ? 'hit' : 'miss',
+            'key' => $cacheKey,
+            'ttl_seconds' => $cacheTtlSeconds,
+        ]);
+    })->name('cache.test');
 
     Route::resource('todos', TodoController::class)
         ->except(['edit', 'update', 'destroy']);

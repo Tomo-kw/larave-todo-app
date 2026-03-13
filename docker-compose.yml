@@ -54,6 +54,13 @@ services:
       # Web UI表示ポート
       - "8025:8025"
 
+  # Cacheサーバ
+  redis:
+    image: redis:7-alpine
+    ports:
+      # Redis接続ポート
+      - "6379:6379"
+
 volumes:
   # named volume 定義
   mysql_data:
