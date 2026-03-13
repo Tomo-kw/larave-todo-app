@@ -1,59 +1,169 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel TODO アプリ（スキルマップ学習用）
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 概要
 
-## About Laravel
+Laravel を使用したシンプルな TODO アプリケーション。  
+スキルマップの学習・検証を目的として作成した。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+以下の内容を実装・確認した。
+- Laravel フレームワークの基本構造
+- Eloquent ORM
+- サービスコンテナ（Dependency Injection）
+- ミドルウェア
+- Docker を使った開発環境構築
+- Web / DB / Cache / Mail サーバの構成確認
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+アプリケーションは Docker 上で動作する。
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+# システム構成
+Browser<br>
+　↓<br>
+nginx<br>
+　↓<br>
+php-fpm<br>
+　↓<br>
+Laravel<br>
+　↓<br>
+MySQL<br>
+　↓<br>
+Redis（キャッシュ）<br>
+　↓<br>
+Mailpit（メール確認）<br>
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+# 使用技術
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Laravel
+- PHP-FPM
+- Nginx
+- MySQL
+- Redis
+- Mailpit
+- Docker
+- Docker Compose
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# アプリケーション機能
 
-## Contributing
+## TODO 管理
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Todo 作成
+- Todo 一覧表示
+- Todo 更新
+- Todo 削除
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Eloquent ORM
 
-## Security Vulnerabilities
+- User と Todo のリレーションを定義
+- User 1 --- N Todo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```php
+Todo::with('user')->get();
+```
 
-## License
+## サービスコンテナ（DI）
+Todo の処理ロジックを TodoService に分離し、
+Controller に依存注入して使用。
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 目的
+- Controller の責務を軽くする
+- 保守性を高める
+
+## ミドルウェア
+リクエスト処理時間をログ出力するミドルウェアを実装。
+
+### 用途
+- 処理時間計測
+- ログ
+- 認証
+- 共通処理
+
+## Docker 環境
+
+docker-compose により以下のサービスを構築。
+| サービス | 役割 |
+| ---- | ---- |
+| nginx | Webサーバ |
+| php-fpm | PHP実行環境 |
+| mysql | データベース |
+| redis | キャッシュ |
+| mailpit | メール確認 |
+
+
+### 起動方法
+`docker compose up -d --build`
+
+### アクセス
+- アプリ
+  - http://localhost:8080
+- Mailpit
+  - http://localhost:8025
+
+### サーバ動作確認
+各サーバのログを確認して動作を検証。
+
+#### Web サーバ（nginx）
+`docker compose logs nginx`
+アクセスログが出力されることを確認。
+
+####DBサーバ（MySQL）
+`docker compose logs mysql`
+
+確認ログ
+`mysqld: ready for connections`
+
+#### Cache サーバ（Redis）
+`docker compose logs redis`
+確認ログ
+`Ready to accept connections`
+
+Laravel 側ではキャッシュとして Redis を利用。
+```PHP
+Cache::remember('todos', 60, function () {
+    return Todo::with('user')->get();
+});
+```
+
+#### Mail サーバ（Mailpit）
+`docker compose logs mailpit`
+
+メール確認
+`http://localhost:8025`
+
+# Laravel 実装内容
+## Eloquent
+- Model 定義
+- Relationship
+- Eager Loading
+
+## サービスコンテナ
+- DI による依存解決
+- bind / singleton の確認
+
+## ミドルウェア
+- リクエスト処理時間のログ出力
+
+# スキルマップ対応
+| 項目 | 実施内容 |
+| ---- | ---- |
+| Laravel(2) | Eloquent / サービスコンテナ / ミドルウェア |
+| Webサーバ | nginx 設定ファイル（default.conf） |
+| DBサーバ | MySQL コンテナ構築 / 接続確認 |
+| Cacheサーバ | Redis キャッシュ |
+| Mailサーバ | Mailpit SMTP |
+| Docker(2) | docker-compose / Dockerfile / 複数サービス構成
+
+# 学んだこと
+
+- nginx は PHP を直接実行せず php-fpm に FastCGI で処理を渡す
+- Docker により Web / DB / Cache / Mail 環境を簡単に再現できる
+- DI により Controller の責務を分離できる
+- Redis はキャッシュ用途として利用する
+- Mailpit によりローカルでメール送信確認ができる
